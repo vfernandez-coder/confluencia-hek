@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <title>Confluencia HEK</title>
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 16px; }
+    .card { border: 1px solid #ddd; border-radius: 14px; padding: 12px; margin-bottom: 12px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    button, input[type="file"] { font-size: 16px; }
+    button { padding: 10px 12px; border-radius: 12px; border: 1px solid #ccc; background: #f6f6f6; }
+    label { font-size: 14px; color: #333; }
+    input[type="range"] { width: 180px; }
+    #status { font-size: 14px; color: #666; }
+    canvas { width: 100%; max-width: 780px; border-radius: 14px; border: 1px solid #eee; }
+    video { width: 100%; max-width: 780px; border-radius: 14px; border: 1px solid #eee; }
+    .big { font-size: 18px; font-weight: 600; }
+    .mono { font-variant-numeric: tabular-nums; }
+    .hint { font-size: 13px; color: #666; line-height: 1.35; }
+    select { padding: 8px; border-radius: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="row">
+      <button id="startCam">📷 Iniciar cámara (directo)</button>
+      <button id="stopCam" disabled>⛔️ Parar</button>
+      <button id="snap" disabled>🎯 Capturar y analizar</button>
+    </div>
+    <p class="hint">
+      Si la cámara en directo no funciona (a veces pasa en iOS en modo “pantalla de inicio”),
+      usa “Tomar foto” aquí abajo.
+    </p>
+    <video id="video" playsinline muted></video>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <label>
+        🖼️ Importar foto:
+        <input id="filePick" type="file" accept="image/*">
+      </label>
+
+      <label>
+        📸 Tomar foto (input):
+        <input id="fileCam" type="file" accept="image/*" capture="environment">
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="big">Confluencia: <span id="pct" class="mono">—</span></div>
+      <div id="status">Cargando OpenCV…</div>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <label>Modo:
+        <select id="mode">
+          <option value="edges">Edges (rápido)</option>
+          <option value="texture">Texture (más inclusivo)</option>
+        </select>
+      </label>
+
+      <label>Sensibilidad <span id="sensVal" class="mono"></span>
+        <input id="sens" type="range" min="0" max="100" value="55">
+      </label>
+
+      <label>Relleno <span id="fillVal" class="mono"></span>
+        <input id="fill" type="range" min="0" max="12" value="5">
+      </label>
+
+      <label>Auto-círculo
+        <select id="autoCircle">
+          <option value="on" selected>ON</option>
+          <option value="off">OFF</option>
+        </select>
+      </label>
+    </div>
+
+    <p class="hint">
+      “Sensibilidad” sube/baja cuánto marca como célula. “Relleno” engorda la máscara (útil en fase contraste).
+      Si tu imagen no tiene campo circular/borde negro, pon Auto-círculo = OFF.
+    </p>
+
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <!-- OpenCV.js (oficial desde docs.opencv.org) -->
+  <script async src="https://docs.opencv.org/4.x/opencv.js" type="text/javascript"></script>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const pctEl = document.getElementById('pct');
+    const statusEl = document.getElementById('status');
+
+    const startCamBtn = document.getElementById('startCam');
+    const stopCamBtn = document.getElementById('stopCam');
+    const snapBtn = document.getElementById('snap');
+
+    const filePick = document.getElementById('filePick');
+    const fileCam = document.getElementById('fileCam');
+
+    const sens = document.getElementById('sens');
+    const fill = document.getElementById('fill');
+    const sensVal = document.getElementById('sensVal');
+    const fillVal = document.getElementById('fillVal');
+    const mode = document.getElementById('mode');
+    const autoCircle = document.getElementById('autoCircle');
+
+    let stream = null;
+    let cvReady = false;
+    let lastImage = null; // ImageData para re-analizar al mover sliders
+
+    function setStatus(msg) { statusEl.textContent = msg; }
+
+    function updateUI() {
+      sensVal.textContent = sens.value;
+      fillVal.textContent = fill.value;
+    }
+    updateUI();
+
+    // Espera a que OpenCV esté listo
+    const cvWait = setInterval(() => {
+      if (typeof cv !== 'undefined' && cv.Mat) {
+        clearInterval(cvWait);
+        cv['onRuntimeInitialized'] = () => {
+          cvReady = true;
+          setStatus('OpenCV listo ✅');
+        };
+      }
+    }, 50);
+
+    async function startCamera() {
+      try {
+        setStatus('Pidiendo permisos de cámara…');
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } },
+          audio: false
+        });
+        video.srcObject = stream;
+        await video.play();
+        snapBtn.disabled = false;
+        stopCamBtn.disabled = false;
+        setStatus('Cámara activa ✅');
+      } catch (e) {
+        console.error(e);
+        setStatus('No se pudo abrir la cámara. Prueba “Tomar foto (input)”.');
+      }
+    }
+
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
+      }
+      video.srcObject = null;
+      snapBtn.disabled = true;
+      stopCamBtn.disabled = true;
+      setStatus('Cámara parada.');
+    }
+
+    function drawToCanvasFromVideo() {
+      const w = video.videoWidth;
+      const h = video.videoHeight;
+      if (!w || !h) return;
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(video, 0, 0, w, h);
+      lastImage = ctx.getImageData(0, 0, w, h);
+    }
+
+    function drawToCanvasFromImage(img) {
+      const w = img.width;
+      const h = img.height;
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0, w, h);
+      lastImage = ctx.getImageData(0, 0, w, h);
+    }
+
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+    function analyze() {
+      if (!cvReady) { setStatus('OpenCV aún cargando…'); return; }
+      if (!lastImage) { setStatus('Carga una imagen o captura una foto.'); return; }
+
+      setStatus('Analizando…');
+
+      // --- Parámetros ---
+      const sens01 = parseInt(sens.value, 10) / 100;      // 0..1
+      const fillPx = parseInt(fill.value, 10);            // 0..12
+      const useAutoCircle = (autoCircle.value === 'on');
+      const whichMode = mode.value;                       // edges | texture
+
+      // Downscale para ir fluido (móvil)
+      const MAX_SIDE = 1100;
+      let src = cv.matFromImageData(lastImage); // RGBA
+      const w0 = src.cols, h0 = src.rows;
+      const scale = Math.min(1, MAX_SIDE / Math.max(w0, h0));
+      if (scale < 1) {
+        let resized = new cv.Mat();
+        cv.resize(src, resized, new cv.Size(Math.round(w0*scale), Math.round(h0*scale)), 0, 0, cv.INTER_AREA);
+        src.delete();
+        src = resized;
+      }
+
+      let gray = new cv.Mat();
+      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+
+      // --- 1) Máscara del campo válido (círculo) ---
+      let fieldMask = new cv.Mat.zeros(gray.rows, gray.cols, cv.CV_8U);
+
+      let cx = Math.floor(gray.cols/2), cy = Math.floor(gray.rows/2);
+      let radius = Math.floor(Math.min(gray.cols, gray.rows)*0.48);
+
+      if (useAutoCircle) {
+        // HoughCircles (puede fallar; hay fallback)
+        let blur = new cv.Mat();
+        cv.medianBlur(gray, blur, 5);
+
+        let circles = new cv.Mat();
+        cv.HoughCircles(
+          blur, circles, cv.HOUGH_GRADIENT,
+          1,            // dp
+          gray.rows/4,  // minDist
+          120,          // param1 (Canny high)
+          25,           // param2 (accumulator threshold)
+          Math.floor(Math.min(gray.cols, gray.rows)*0.30),
+          Math.floor(Math.min(gray.cols, gray.rows)*0.52)
+        );
+
+        if (circles.cols > 0) {
+          // elige el de mayor radio
+          let best = 0;
+          for (let i=0; i<circles.cols; i++) {
+            const r = circles.data32F[i*3+2];
+            if (r > circles.data32F[best*3+2]) best = i;
+          }
+          cx = Math.round(circles.data32F[best*3]);
+          cy = Math.round(circles.data32F[best*3+1]);
+          radius = Math.round(circles.data32F[best*3+2] * 0.98); // pelín dentro
+        }
+        blur.delete(); circles.delete();
+      }
+
+      cv.circle(fieldMask, new cv.Point(cx, cy), radius, new cv.Scalar(255), -1);
+
+      // --- 2) Segmentación célula vs fondo ---
+      let cellMask = new cv.Mat.zeros(gray.rows, gray.cols, cv.CV_8U);
+
+      if (whichMode === 'edges') {
+        // Canny + dilatación/close
+        let blur2 = new cv.Mat();
+        cv.GaussianBlur(gray, blur2, new cv.Size(5,5), 0, 0, cv.BORDER_DEFAULT);
+
+        let edges = new cv.Mat();
+        // umbrales dependientes de sensibilidad
+        const t1 = clamp(20 + (1 - sens01) * 60, 10, 90);
+        const t2 = clamp(t1 * 2.5, 40, 220);
+        cv.Canny(blur2, edges, t1, t2);
+
+        edges.copyTo(cellMask);
+        blur2.delete(); edges.delete();
+      } else {
+        // “Texture”: Laplacian abs + threshold
+        let blur2 = new cv.Mat();
+        cv.GaussianBlur(gray, blur2, new cv.Size(5,5), 0, 0, cv.BORDER_DEFAULT);
+
+        let lap16 = new cv.Mat();
+        cv.Laplacian(blur2, lap16, cv.CV_16S, 3, 1, 0, cv.BORDER_DEFAULT);
+
+        let abs8 = new cv.Mat();
+        cv.convertScaleAbs(lap16, abs8);
+
+        // threshold depende sensibilidad
+        const thr = clamp(10 + (1 - sens01) * 40, 5, 60);
+        cv.threshold(abs8, cellMask, thr, 255, cv.THRESH_BINARY);
+
+        blur2.delete(); lap16.delete(); abs8.delete();
+      }
+
+      // Morphology para “rellenar monocapa”
+      if (fillPx > 0) {
+        const k = cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(fillPx*2+1, fillPx*2+1));
+        cv.morphologyEx(cellMask, cellMask, cv.MORPH_CLOSE, k);
+        cv.dilate(cellMask, cellMask, k);
+        k.delete();
+      }
+
+      // Restringe a campo válido
+      let cellInField = new cv.Mat();
+      cv.bitwise_and(cellMask, fieldMask, cellInField);
+
+      // --- 3) Confluencia (% área) ---
+      const fieldCount = cv.countNonZero(fieldMask);
+      const cellCount  = cv.countNonZero(cellInField);
+      const confluence = (fieldCount > 0) ? (100.0 * cellCount / fieldCount) : 0;
+
+      pctEl.textContent = confluence.toFixed(1) + '%';
+
+      // --- 4) Overlay rojo ---
+      let overlay = src.clone(); // RGBA
+      // crea una capa roja con alpha
+      let red = new cv.Mat(src.rows, src.cols, src.type(), new cv.Scalar(255, 0, 0, 90));
+      // aplica máscara: copia red solo donde hay célula
+      let redMasked = new cv.Mat.zeros(src.rows, src.cols, src.type());
+      red.copyTo(redMasked, cellInField);
+
+      // mezcla overlay = overlay + redMasked (alpha ya en canal A)
+      cv.addWeighted(overlay, 1.0, redMasked, 1.0, 0.0, overlay);
+
+      // pinta fuera del campo con un velo para que se vea el ROI
+      let outside = new cv.Mat();
+      cv.bitwise_not(fieldMask, outside);
+      let dim = new cv.Mat(src.rows, src.cols, src.type(), new cv.Scalar(0,0,0,140));
+      let dimMasked = new cv.Mat.zeros(src.rows, src.cols, src.type());
+      dim.copyTo(dimMasked, outside);
+      cv.addWeighted(overlay, 1.0, dimMasked, 1.0, 0.0, overlay);
+
+      // Render a canvas
+      cv.imshow(canvas, overlay);
+
+      // Limpieza
+      src.delete(); gray.delete(); fieldMask.delete();
+      cellMask.delete(); cellInField.delete();
+      overlay.delete(); red.delete(); redMasked.delete();
+      outside.delete(); dim.delete(); dimMasked.delete();
+
+      setStatus('Listo ✅ (ajusta sliders si la máscara no encaja)');
+    }
+
+    // Eventos
+    startCamBtn.addEventListener('click', startCamera);
+    stopCamBtn.addEventListener('click', stopCamera);
+    snapBtn.addEventListener('click', () => {
+      drawToCanvasFromVideo();
+      analyze();
+    });
+
+    function handleFile(file) {
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => { drawToCanvasFromImage(img); analyze(); };
+      img.src = URL.createObjectURL(file);
+    }
+
+    filePick.addEventListener('change', (e) => handleFile(e.target.files[0]));
+    fileCam.addEventListener('change',  (e) => handleFile(e.target.files[0]));
+
+    ;[sens, fill, mode, autoCircle].forEach(el => {
+      el.addEventListener('input', () => { updateUI(); analyze(); });
+      el.addEventListener('change', () => { updateUI(); analyze(); });
+    });
+  </script>
+</body>
+</html>
