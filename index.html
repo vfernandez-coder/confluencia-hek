@@ -25,13 +25,17 @@
       --card: rgba(75, 64, 87, 0.55);
       --border: rgba(173,124,104,0.25);
       --text: #f3ece9;
-      --muted: rgba(243,236,233,0.78);
+      --muted: rgba(243,236,233,0.82);
       --accent: var(--c2);
-      --accentSoft: rgba(169, 80, 89, 0.25);
+
+      /* Colores para los botones de archivo (degradado tipo tu muestra) */
+      --fileA: #F2B19A;
+      --fileB: #F26B7C;
     }
 
     body{
       font-family: "Josefin Sans", -apple-system, system-ui, sans-serif;
+      font-size: 19px; /* +3 puntos (base) */
       margin:0;
       padding:18px;
       background: var(--bg);
@@ -40,12 +44,12 @@
       justify-content:center;
     }
 
-    .main{ width:min(940px, 100%); }
+    .main{ width:min(960px, 100%); }
 
     .header{
       text-align:center;
       margin: 6px 0 14px 0;
-      padding: 12px 10px;
+      padding: 14px 12px;
       border-radius: 16px;
       background: rgba(35,65,89,0.30);
       border: 1px solid rgba(255,255,255,0.10);
@@ -53,7 +57,7 @@
 
     .header h1{
       margin: 6px 0 0 0;
-      font-size: clamp(18px, 3.2vw, 34px);
+      font-size: clamp(22px, 3.4vw, 38px); /* más grande */
       letter-spacing: 0.10em;
       text-transform: uppercase;
       font-weight: 700;
@@ -62,7 +66,7 @@
 
     .header p{
       margin: 10px 0 0 0;
-      font-size: 14px;
+      font-size: 17px; /* +3 */
       color: var(--muted);
       letter-spacing: 0.02em;
     }
@@ -85,8 +89,7 @@
       justify-content:center;
     }
 
-    button, input[type="file"] { font-size: 16px; }
-
+    button { font-size: 19px; } /* +3 */
     button{
       padding:10px 12px;
       border-radius: 12px;
@@ -94,7 +97,7 @@
       background: var(--accent);
       color: #fff;
       font-family: inherit;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     button.secondary{
@@ -105,43 +108,75 @@
     button:disabled{ opacity:0.45; }
 
     label{
-      font-size: 14px;
+      font-size: 17px; /* +3 vs 14 */
       color: var(--muted);
-      font-weight: 400;
+      font-weight: 600;
     }
 
     input[type="range"]{
-      width: 180px;
+      width: 200px;
       accent-color: var(--accent);
     }
 
     #status{
-      font-size: 14px;
+      font-size: 17px; /* +3 */
       color: var(--muted);
     }
 
     canvas, video{
       width: 100%;
-      max-width: 840px;
+      max-width: 860px;
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,0.10);
     }
 
-    .big{ font-size: 20px; font-weight: 700; letter-spacing: 0.02em; }
+    .big{ font-size: 22px; font-weight: 800; letter-spacing: 0.02em; }
     .mono{ font-variant-numeric: tabular-nums; }
-    .hint{ font-size: 13px; color: var(--muted); line-height: 1.35; }
+    .hint{ font-size: 16px; color: var(--muted); line-height: 1.35; } /* +3 */
 
     select{
+      font-size: 18px; /* +3 */
       padding: 8px 10px;
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.14);
       background: rgba(35,65,89,0.35);
       color: var(--text);
       font-family: inherit;
-      font-weight: 600;
+      font-weight: 700;
     }
 
-    /* Quesito */
+    /* ---- Botones bonitos para file inputs ---- */
+    .fileInput{
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    .fileBtn{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+
+      padding: 10px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.14);
+
+      color: #fff;
+      font-size: 19px;   /* como Iniciar cámara */
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+      font-family: inherit;
+      background: linear-gradient(135deg, var(--fileA), var(--fileB));
+      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+    }
+
+    .fileBtn:active{ transform: translateY(1px); }
+
+    /* ---- Quesito ---- */
     .progressWrap{
       display:flex;
       align-items:center;
@@ -149,7 +184,7 @@
       gap:10px;
     }
 
-    .donut{ width: 44px; height: 44px; }
+    .donut{ width: 48px; height: 48px; }
 
     .donut circle.track{
       stroke: rgba(243,236,233,0.20);
@@ -168,11 +203,11 @@
     }
 
     .donutText{
-      font-size: 13px;
+      font-size: 16px; /* +3 */
       color: var(--muted);
-      min-width: 42px;
+      min-width: 52px;
       text-align:left;
-      font-weight: 600;
+      font-weight: 800;
     }
 
     .hidden{ display:none; }
@@ -181,22 +216,27 @@
       margin-top: 14px;
       text-align: center;
       padding: 14px 10px 6px 10px;
-      color: rgba(243,236,233,0.85);
-      font-size: 16px;
+      color: rgba(243,236,233,0.88);
+      font-size: 19px; /* +3 */
       letter-spacing: 0.02em;
-    }
-
-    .footer em{
-      font-style: normal;
-      color: var(--c1);
-      font-weight: 700;
     }
 
     .footer small{
       display:block;
       margin-top: 8px;
-      color: rgba(243,236,233,0.65);
-      font-size: 13px;
+      color: rgba(243,236,233,0.70);
+      font-size: 16px; /* +3 */
+    }
+
+    .footer em{
+      font-style: normal;
+      color: var(--c1);
+      font-weight: 800;
+    }
+
+    .footer i{
+      color: rgba(243,236,233,0.75);
+      font-weight: 600;
     }
   </style>
 </head>
@@ -217,22 +257,18 @@
       </div>
       <p class="hint">
         Si la cámara en directo no funciona (a veces pasa en iOS en modo “pantalla de inicio”),
-        usa “Tomar foto” aquí abajo.
+        usa “Hacer foto” aquí abajo.
       </p>
       <video id="video" playsinline muted></video>
     </div>
 
     <div class="card">
       <div class="row">
-        <label>
-          🖼️ Importar foto:
-          <input id="filePick" type="file" accept="image/*">
-        </label>
+        <input id="filePick" class="fileInput" type="file" accept="image/*">
+        <label for="filePick" class="fileBtn">🖼️ Seleccionar archivo</label>
 
-        <label>
-          📸 Tomar foto (input):
-          <input id="fileCam" type="file" accept="image/*" capture="environment">
-        </label>
+        <input id="fileCam" class="fileInput" type="file" accept="image/*" capture="environment">
+        <label for="fileCam" class="fileBtn">📸 Hacer foto</label>
       </div>
     </div>
 
@@ -275,6 +311,7 @@
         </label>
 
         <button id="analyzeBtn" disabled>🔬 Analizar confluencia</button>
+        <button id="downloadMaskBtn" disabled>⬇️ Descargar máscara</button>
       </div>
 
       <p class="hint">
@@ -288,6 +325,7 @@
     <div class="footer">
       Ya no es un problema que tengas un ojo terrible calculando confluencias.
       <small><em>Víctor Borrel Lab</em> · Confluencia hecha fácil.</small>
+      <small><i>hecho con ChatGPT por Virginia F.</i></small>
     </div>
 
   </div>
@@ -305,6 +343,7 @@
     const stopCamBtn = document.getElementById('stopCam');
     const snapBtn = document.getElementById('snap');
     const analyzeBtn = document.getElementById('analyzeBtn');
+    const downloadMaskBtn = document.getElementById('downloadMaskBtn');
 
     const filePick = document.getElementById('filePick');
     const fileCam = document.getElementById('fileCam');
@@ -327,8 +366,9 @@
 
     let stream = null;
     let cvReady = false;
-    let lastImage = null; // ImageData
+    let lastImage = null;       // ImageData
     let isAnalyzing = false;
+    let lastMaskDataURL = null; // PNG para descargar
 
     function setStatus(msg) { statusEl.textContent = msg; }
 
@@ -337,8 +377,9 @@
       fillVal.textContent = fill.value;
     }
 
-    function updateAnalyzeButton() {
+    function updateButtons() {
       analyzeBtn.disabled = !(cvReady && lastImage) || isAnalyzing;
+      downloadMaskBtn.disabled = !lastMaskDataURL || isAnalyzing;
     }
 
     function showProgress(show) {
@@ -358,7 +399,7 @@
     }
 
     updateUI();
-    updateAnalyzeButton();
+    updateButtons();
     showProgress(false);
 
     // OpenCV init (FIX iOS) — nunca analiza automáticamente
@@ -370,14 +411,13 @@
           cv['onRuntimeInitialized'] = () => {
             cvReady = true;
             setStatus('OpenCV listo ✅ Carga una imagen y pulsa "Analizar confluencia".');
-            updateAnalyzeButton();
+            updateButtons();
           };
         }
-
         if (cv.Mat) {
           cvReady = true;
           setStatus('OpenCV listo ✅ Carga una imagen y pulsa "Analizar confluencia".');
-          updateAnalyzeButton();
+          updateButtons();
           clearInterval(cvWait);
         }
       }
@@ -401,7 +441,7 @@
         setStatus('Cámara activa ✅ Captura una imagen y luego pulsa "Analizar confluencia".');
       } catch (e) {
         console.error(e);
-        setStatus('No se pudo abrir la cámara. Prueba “Tomar foto (input)”.');
+        setStatus('No se pudo abrir la cámara. Prueba “Hacer foto”.');
       }
     }
 
@@ -439,15 +479,58 @@
 
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
+    function buildMaskPNG(maskMat8U) {
+      // PNG con fondo transparente y máscara roja
+      const w = maskMat8U.cols;
+      const h = maskMat8U.rows;
+      const off = document.createElement('canvas');
+      off.width = w;
+      off.height = h;
+      const ctx = off.getContext('2d');
+
+      const img = ctx.createImageData(w, h);
+      const dst = img.data;
+      const src = maskMat8U.data; // Uint8Array
+
+      // Rojo con alpha 180
+      for (let i = 0, p = 0; i < src.length; i++, p += 4) {
+        if (src[i]) {
+          dst[p] = 255;
+          dst[p+1] = 0;
+          dst[p+2] = 0;
+          dst[p+3] = 180;
+        } else {
+          dst[p] = 0;
+          dst[p+1] = 0;
+          dst[p+2] = 0;
+          dst[p+3] = 0;
+        }
+      }
+
+      ctx.putImageData(img, 0, 0);
+      return off.toDataURL('image/png');
+    }
+
+    function downloadDataURL(dataURL, filename) {
+      const a = document.createElement('a');
+      a.href = dataURL;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
     async function analyze() {
       if (!cvReady) { setStatus('OpenCV aún cargando…'); return; }
       if (!lastImage) { setStatus('Carga una imagen o captura una foto.'); return; }
       if (isAnalyzing) return;
 
+      // invalidar máscara anterior
+      lastMaskDataURL = null;
       isAnalyzing = true;
       const oldBtn = analyzeBtn.textContent;
       analyzeBtn.textContent = 'Analizando…';
-      updateAnalyzeButton();
+      updateButtons();
 
       showProgress(true);
       setProgress(0);
@@ -462,8 +545,9 @@
 
         setProgress(8);  await nextFrame();
 
+        // Downscale para móvil
         const MAX_SIDE = 1100;
-        let src = cv.matFromImageData(lastImage);
+        let src = cv.matFromImageData(lastImage); // RGBA
         const w0 = src.cols, h0 = src.rows;
         const scale = Math.min(1, MAX_SIDE / Math.max(w0, h0));
         if (scale < 1) {
@@ -480,8 +564,8 @@
 
         setProgress(30); await nextFrame();
 
+        // ROI
         let fieldMask;
-
         if (useAutoCircle) {
           fieldMask = new cv.Mat.zeros(gray.rows, gray.cols, cv.CV_8U);
 
@@ -521,6 +605,7 @@
 
         setProgress(45); await nextFrame();
 
+        // Segmentación
         let cellMask = new cv.Mat.zeros(gray.rows, gray.cols, cv.CV_8U);
 
         if (whichMode === 'edges') {
@@ -564,6 +649,7 @@
         let cellInField = new cv.Mat();
         cv.bitwise_and(cellMask, fieldMask, cellInField);
 
+        // Confluencia
         const fieldCount = cv.countNonZero(fieldMask);
         const cellCount  = cv.countNonZero(cellInField);
         const confluence = (fieldCount > 0) ? (100.0 * cellCount / fieldCount) : 0;
@@ -571,6 +657,7 @@
 
         setProgress(90); await nextFrame();
 
+        // Overlay
         let overlay = src.clone();
         let red = new cv.Mat(src.rows, src.cols, src.type(), new cv.Scalar(255, 0, 0, 90));
         let redMasked = new cv.Mat.zeros(src.rows, src.cols, src.type());
@@ -589,8 +676,12 @@
 
         cv.imshow(canvas, overlay);
 
+        // Genera PNG de máscara (transparente + rojo) para descargar
+        lastMaskDataURL = buildMaskPNG(cellInField);
+
         setProgress(100); await nextFrame();
 
+        // Limpieza
         src.delete(); gray.delete(); fieldMask.delete();
         cellMask.delete(); cellInField.delete();
         overlay.delete(); red.delete(); redMasked.delete();
@@ -602,10 +693,11 @@
         console.error(e);
         setStatus('Error analizando (mira consola / prueba otra foto).');
         showProgress(false);
+        lastMaskDataURL = null;
       } finally {
         isAnalyzing = false;
         analyzeBtn.textContent = oldBtn || '🔬 Analizar confluencia';
-        updateAnalyzeButton();
+        updateButtons();
       }
     }
 
@@ -618,10 +710,17 @@
       setStatus('Captura hecha ✅ Ajusta parámetros y pulsa "Analizar confluencia".');
       showProgress(false);
       setProgress(0);
-      updateAnalyzeButton();
+      lastMaskDataURL = null;
+      updateButtons();
     });
 
     analyzeBtn.addEventListener('click', () => analyze());
+
+    downloadMaskBtn.addEventListener('click', () => {
+      if (!lastMaskDataURL) return;
+      const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+      downloadDataURL(lastMaskDataURL, `mascara_${ts}.png`);
+    });
 
     function handleFile(file) {
       if (!file) return;
@@ -631,7 +730,8 @@
         setStatus('Imagen cargada ✅ Ajusta parámetros y pulsa "Analizar confluencia".');
         showProgress(false);
         setProgress(0);
-        updateAnalyzeButton();
+        lastMaskDataURL = null;
+        updateButtons();
       };
       img.src = URL.createObjectURL(file);
     }
