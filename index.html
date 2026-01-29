@@ -7,87 +7,289 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <title>Confluencia HEK</title>
+
+  <!-- Josefin Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 16px; }
-    .card { border: 1px solid #ddd; border-radius: 14px; padding: 12px; margin-bottom: 12px; }
-    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    :root{
+      --c1:#AD7C68;
+      --c2:#A95059;
+      --c3:#864B5D;
+      --c4:#4B4057;
+      --c5:#234159;
+
+      --bg: var(--c5);
+      --card: rgba(75, 64, 87, 0.55);
+      --border: rgba(173,124,104,0.25);
+      --text: #f3ece9;
+      --muted: rgba(243,236,233,0.78);
+      --accent: var(--c2);
+      --accentSoft: rgba(169, 80, 89, 0.25);
+    }
+
+    body{
+      font-family: "Josefin Sans", -apple-system, system-ui, sans-serif;
+      margin:0;
+      padding:18px;
+      background: var(--bg);
+      color: var(--text);
+      display:flex;
+      justify-content:center;
+    }
+
+    .main{ width:min(940px, 100%); }
+
+    .header{
+      text-align:center;
+      margin: 6px 0 14px 0;
+      padding: 12px 10px;
+      border-radius: 16px;
+      background: rgba(35,65,89,0.30);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .header h1{
+      margin: 6px 0 0 0;
+      font-size: clamp(18px, 3.2vw, 34px);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .header p{
+      margin: 10px 0 0 0;
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
+      text-align: center;
+      backdrop-filter: blur(6px);
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:center;
+    }
+
     button, input[type="file"] { font-size: 16px; }
-    button { padding: 10px 12px; border-radius: 12px; border: 1px solid #ccc; background: #f6f6f6; }
-    label { font-size: 14px; color: #333; }
-    input[type="range"] { width: 180px; }
-    #status { font-size: 14px; color: #666; }
-    canvas { width: 100%; max-width: 780px; border-radius: 14px; border: 1px solid #eee; }
-    video { width: 100%; max-width: 780px; border-radius: 14px; border: 1px solid #eee; }
-    .big { font-size: 18px; font-weight: 600; }
-    .mono { font-variant-numeric: tabular-nums; }
-    .hint { font-size: 13px; color: #666; line-height: 1.35; }
-    select { padding: 8px; border-radius: 10px; border: 1px solid #ccc; }
+
+    button{
+      padding:10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: var(--accent);
+      color: #fff;
+      font-family: inherit;
+      font-weight: 600;
+    }
+
+    button.secondary{
+      background: rgba(35,65,89,0.35);
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+
+    button:disabled{ opacity:0.45; }
+
+    label{
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    input[type="range"]{
+      width: 180px;
+      accent-color: var(--accent);
+    }
+
+    #status{
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    canvas, video{
+      width: 100%;
+      max-width: 840px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .big{ font-size: 20px; font-weight: 700; letter-spacing: 0.02em; }
+    .mono{ font-variant-numeric: tabular-nums; }
+    .hint{ font-size: 13px; color: var(--muted); line-height: 1.35; }
+
+    select{
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(35,65,89,0.35);
+      color: var(--text);
+      font-family: inherit;
+      font-weight: 600;
+    }
+
+    /* Quesito */
+    .progressWrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    }
+
+    .donut{ width: 44px; height: 44px; }
+
+    .donut circle.track{
+      stroke: rgba(243,236,233,0.20);
+      stroke-width: 6;
+      fill: none;
+    }
+
+    .donut circle.indicator{
+      stroke: var(--accent);
+      stroke-width: 6;
+      fill: none;
+      stroke-linecap: round;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dashoffset 120ms linear;
+    }
+
+    .donutText{
+      font-size: 13px;
+      color: var(--muted);
+      min-width: 42px;
+      text-align:left;
+      font-weight: 600;
+    }
+
+    .hidden{ display:none; }
+
+    .footer{
+      margin-top: 14px;
+      text-align: center;
+      padding: 14px 10px 6px 10px;
+      color: rgba(243,236,233,0.85);
+      font-size: 16px;
+      letter-spacing: 0.02em;
+    }
+
+    .footer em{
+      font-style: normal;
+      color: var(--c1);
+      font-weight: 700;
+    }
+
+    .footer small{
+      display:block;
+      margin-top: 8px;
+      color: rgba(243,236,233,0.65);
+      font-size: 13px;
+    }
   </style>
 </head>
+
 <body>
-  <div class="card">
-    <div class="row">
-      <button id="startCam">📷 Iniciar cámara (directo)</button>
-      <button id="stopCam" disabled>⛔️ Parar</button>
-      <button id="snap" disabled>🎯 Capturar y analizar</button>
-    </div>
-    <p class="hint">
-      Si la cámara en directo no funciona (a veces pasa en iOS en modo “pantalla de inicio”),
-      usa “Tomar foto” aquí abajo.
-    </p>
-    <video id="video" playsinline muted></video>
-  </div>
+  <div class="main">
 
-  <div class="card">
-    <div class="row">
-      <label>
-        🖼️ Importar foto:
-        <input id="filePick" type="file" accept="image/*">
-      </label>
-
-      <label>
-        📸 Tomar foto (input):
-        <input id="fileCam" type="file" accept="image/*" capture="environment">
-      </label>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="row">
-      <div class="big">Confluencia: <span id="pct" class="mono">—</span></div>
-      <div id="status">Cargando OpenCV…</div>
+    <div class="header">
+      <h1>ANÁLISIS DE CONFLUENCIA VÍCTOR BORREL LAB</h1>
+      <p>Foto → máscara → porcentaje. Sin dramas.</p>
     </div>
 
-    <div class="row" style="margin-top:10px;">
-      <label>Modo:
-        <select id="mode">
-          <option value="edges">Edges (rápido)</option>
-          <option value="texture">Texture (más inclusivo)</option>
-        </select>
-      </label>
-
-      <label>Sensibilidad <span id="sensVal" class="mono"></span>
-        <input id="sens" type="range" min="0" max="100" value="55">
-      </label>
-
-      <label>Relleno <span id="fillVal" class="mono"></span>
-        <input id="fill" type="range" min="0" max="12" value="5">
-      </label>
-
-      <label>Auto-círculo
-        <select id="autoCircle">
-          <option value="on" selected>ON</option>
-          <option value="off">OFF</option>
-        </select>
-      </label>
+    <div class="card">
+      <div class="row">
+        <button id="startCam" class="secondary">📷 Iniciar cámara (directo)</button>
+        <button id="stopCam" class="secondary" disabled>⛔️ Parar</button>
+        <button id="snap" class="secondary" disabled>🎯 Capturar</button>
+      </div>
+      <p class="hint">
+        Si la cámara en directo no funciona (a veces pasa en iOS en modo “pantalla de inicio”),
+        usa “Tomar foto” aquí abajo.
+      </p>
+      <video id="video" playsinline muted></video>
     </div>
 
-    <p class="hint">
-      “Sensibilidad” sube/baja cuánto marca como célula. “Relleno” engorda la máscara (útil en fase contraste).
-      Si tu imagen no tiene campo circular/borde negro, pon Auto-círculo = OFF.
-    </p>
+    <div class="card">
+      <div class="row">
+        <label>
+          🖼️ Importar foto:
+          <input id="filePick" type="file" accept="image/*">
+        </label>
 
-    <canvas id="canvas"></canvas>
+        <label>
+          📸 Tomar foto (input):
+          <input id="fileCam" type="file" accept="image/*" capture="environment">
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="gap:14px;">
+        <div class="big">Confluencia: <span id="pct" class="mono">—</span></div>
+
+        <div class="progressWrap hidden" id="progressWrap" aria-hidden="true">
+          <svg class="donut" viewBox="0 0 44 44">
+            <circle class="track" cx="22" cy="22" r="16"></circle>
+            <circle class="indicator" cx="22" cy="22" r="16"></circle>
+          </svg>
+          <div class="donutText mono" id="progressText">0%</div>
+        </div>
+
+        <div id="status">Cargando OpenCV…</div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <label>Modo:
+          <select id="mode">
+            <option value="edges">Edges (rápido)</option>
+            <option value="texture">Texture (más inclusivo)</option>
+          </select>
+        </label>
+
+        <label>Sensibilidad <span id="sensVal" class="mono"></span>
+          <input id="sens" type="range" min="0" max="100" value="55">
+        </label>
+
+        <label>Relleno <span id="fillVal" class="mono"></span>
+          <input id="fill" type="range" min="0" max="12" value="5">
+        </label>
+
+        <label>Auto-círculo
+          <select id="autoCircle">
+            <option value="on" selected>ON</option>
+            <option value="off">OFF</option>
+          </select>
+        </label>
+
+        <button id="analyzeBtn" disabled>🔬 Analizar confluencia</button>
+      </div>
+
+      <p class="hint">
+        Ajusta parámetros y pulsa <b>Analizar confluencia</b>. No se analiza automáticamente.
+        Si tu imagen no tiene campo circular/borde negro, pon Auto-círculo = OFF.
+      </p>
+
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="footer">
+      Ya no es un problema que tengas un ojo terrible calculando confluencias.
+      <small><em>Víctor Borrel Lab</em> · Confluencia hecha fácil.</small>
+    </div>
+
   </div>
 
   <!-- OpenCV.js (oficial desde docs.opencv.org) -->
@@ -102,6 +304,7 @@
     const startCamBtn = document.getElementById('startCam');
     const stopCamBtn = document.getElementById('stopCam');
     const snapBtn = document.getElementById('snap');
+    const analyzeBtn = document.getElementById('analyzeBtn');
 
     const filePick = document.getElementById('filePick');
     const fileCam = document.getElementById('fileCam');
@@ -113,9 +316,19 @@
     const mode = document.getElementById('mode');
     const autoCircle = document.getElementById('autoCircle');
 
+    // Quesito
+    const progressWrap = document.getElementById('progressWrap');
+    const progressText = document.getElementById('progressText');
+    const indicator = document.querySelector('.donut circle.indicator');
+    const R = 16;
+    const CIRC = 2 * Math.PI * R;
+    indicator.style.strokeDasharray = `${CIRC} ${CIRC}`;
+    indicator.style.strokeDashoffset = `${CIRC}`;
+
     let stream = null;
     let cvReady = false;
-    let lastImage = null; // ImageData para re-analizar al mover sliders
+    let lastImage = null; // ImageData
+    let isAnalyzing = false;
 
     function setStatus(msg) { statusEl.textContent = msg; }
 
@@ -123,37 +336,56 @@
       sensVal.textContent = sens.value;
       fillVal.textContent = fill.value;
     }
+
+    function updateAnalyzeButton() {
+      analyzeBtn.disabled = !(cvReady && lastImage) || isAnalyzing;
+    }
+
+    function showProgress(show) {
+      progressWrap.classList.toggle('hidden', !show);
+      progressWrap.setAttribute('aria-hidden', show ? 'false' : 'true');
+    }
+
+    function setProgress(pct) {
+      const p = Math.max(0, Math.min(100, pct));
+      const offset = CIRC - (p / 100) * CIRC;
+      indicator.style.strokeDashoffset = `${offset}`;
+      progressText.textContent = `${Math.round(p)}%`;
+    }
+
+    function nextFrame() {
+      return new Promise(resolve => requestAnimationFrame(() => resolve()));
+    }
+
     updateUI();
+    updateAnalyzeButton();
+    showProgress(false);
 
-   // Espera a que OpenCV esté listo (FIX iOS)
-let hooked = false;
-const cvWait = setInterval(() => {
-  if (typeof cv !== 'undefined') {
+    // OpenCV init (FIX iOS) — nunca analiza automáticamente
+    let hooked = false;
+    const cvWait = setInterval(() => {
+      if (typeof cv !== 'undefined') {
+        if (!hooked) {
+          hooked = true;
+          cv['onRuntimeInitialized'] = () => {
+            cvReady = true;
+            setStatus('OpenCV listo ✅ Carga una imagen y pulsa "Analizar confluencia".');
+            updateAnalyzeButton();
+          };
+        }
 
-    // Si aún no hemos enganchado el callback, lo enganchamos ya
-    if (!hooked) {
-      hooked = true;
-      cv['onRuntimeInitialized'] = () => {
-        cvReady = true;
-        setStatus('OpenCV listo ✅');
-        // si ya había imagen cargada, intenta analizar
-        try { analyze(); } catch (e) {}
-      };
-    }
+        if (cv.Mat) {
+          cvReady = true;
+          setStatus('OpenCV listo ✅ Carga una imagen y pulsa "Analizar confluencia".');
+          updateAnalyzeButton();
+          clearInterval(cvWait);
+        }
+      }
+    }, 50);
 
-    // Si por lo que sea ya estaba inicializado cuando llegamos aquí
-    if (cv.Mat) {
-      cvReady = true;
-      setStatus('OpenCV listo ✅');
-      clearInterval(cvWait);
-    }
-  }
-}, 50);
-
-// Fallback por si OpenCV no carga nunca (red, cache, etc.)
-setTimeout(() => {
-  if (!cvReady) setStatus('OpenCV no ha cargado (prueba recargar / otra red).');
-}, 12000);
+    setTimeout(() => {
+      if (!cvReady) setStatus('OpenCV no ha cargado (prueba recargar / otra red).');
+    }, 12000);
 
     async function startCamera() {
       try {
@@ -166,7 +398,7 @@ setTimeout(() => {
         await video.play();
         snapBtn.disabled = false;
         stopCamBtn.disabled = false;
-        setStatus('Cámara activa ✅');
+        setStatus('Cámara activa ✅ Captura una imagen y luego pulsa "Analizar confluencia".');
       } catch (e) {
         console.error(e);
         setStatus('No se pudo abrir la cámara. Prueba “Tomar foto (input)”.');
@@ -207,167 +439,200 @@ setTimeout(() => {
 
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
-    function analyze() {
+    async function analyze() {
       if (!cvReady) { setStatus('OpenCV aún cargando…'); return; }
       if (!lastImage) { setStatus('Carga una imagen o captura una foto.'); return; }
+      if (isAnalyzing) return;
 
+      isAnalyzing = true;
+      const oldBtn = analyzeBtn.textContent;
+      analyzeBtn.textContent = 'Analizando…';
+      updateAnalyzeButton();
+
+      showProgress(true);
+      setProgress(0);
       setStatus('Analizando…');
+      await nextFrame();
 
-      // --- Parámetros ---
-      const sens01 = parseInt(sens.value, 10) / 100;      // 0..1
-      const fillPx = parseInt(fill.value, 10);            // 0..12
-      const useAutoCircle = (autoCircle.value === 'on');
-      const whichMode = mode.value;                       // edges | texture
+      try {
+        const sens01 = parseInt(sens.value, 10) / 100;
+        const fillPx = parseInt(fill.value, 10);
+        const useAutoCircle = (autoCircle.value === 'on');
+        const whichMode = mode.value;
 
-      // Downscale para ir fluido (móvil)
-      const MAX_SIDE = 1100;
-      let src = cv.matFromImageData(lastImage); // RGBA
-      const w0 = src.cols, h0 = src.rows;
-      const scale = Math.min(1, MAX_SIDE / Math.max(w0, h0));
-      if (scale < 1) {
-        let resized = new cv.Mat();
-        cv.resize(src, resized, new cv.Size(Math.round(w0*scale), Math.round(h0*scale)), 0, 0, cv.INTER_AREA);
-        src.delete();
-        src = resized;
-      }
+        setProgress(8);  await nextFrame();
 
-      let gray = new cv.Mat();
-      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-
-      // --- 1) Máscara del campo válido (círculo) ---
-      let fieldMask = new cv.Mat.zeros(gray.rows, gray.cols, cv.CV_8U);
-
-      let cx = Math.floor(gray.cols/2), cy = Math.floor(gray.rows/2);
-      let radius = Math.floor(Math.min(gray.cols, gray.rows)*0.48);
-
-      if (useAutoCircle) {
-        // HoughCircles (puede fallar; hay fallback)
-        let blur = new cv.Mat();
-        cv.medianBlur(gray, blur, 5);
-
-        let circles = new cv.Mat();
-        cv.HoughCircles(
-          blur, circles, cv.HOUGH_GRADIENT,
-          1,            // dp
-          gray.rows/4,  // minDist
-          120,          // param1 (Canny high)
-          25,           // param2 (accumulator threshold)
-          Math.floor(Math.min(gray.cols, gray.rows)*0.30),
-          Math.floor(Math.min(gray.cols, gray.rows)*0.52)
-        );
-
-        if (circles.cols > 0) {
-          // elige el de mayor radio
-          let best = 0;
-          for (let i=0; i<circles.cols; i++) {
-            const r = circles.data32F[i*3+2];
-            if (r > circles.data32F[best*3+2]) best = i;
-          }
-          cx = Math.round(circles.data32F[best*3]);
-          cy = Math.round(circles.data32F[best*3+1]);
-          radius = Math.round(circles.data32F[best*3+2] * 0.98); // pelín dentro
+        const MAX_SIDE = 1100;
+        let src = cv.matFromImageData(lastImage);
+        const w0 = src.cols, h0 = src.rows;
+        const scale = Math.min(1, MAX_SIDE / Math.max(w0, h0));
+        if (scale < 1) {
+          let resized = new cv.Mat();
+          cv.resize(src, resized, new cv.Size(Math.round(w0*scale), Math.round(h0*scale)), 0, 0, cv.INTER_AREA);
+          src.delete();
+          src = resized;
         }
-        blur.delete(); circles.delete();
+
+        setProgress(20); await nextFrame();
+
+        let gray = new cv.Mat();
+        cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+
+        setProgress(30); await nextFrame();
+
+        let fieldMask;
+
+        if (useAutoCircle) {
+          fieldMask = new cv.Mat.zeros(gray.rows, gray.cols, cv.CV_8U);
+
+          let cx = Math.floor(gray.cols/2), cy = Math.floor(gray.rows/2);
+          let radius = Math.floor(Math.min(gray.cols, gray.rows)*0.48);
+
+          let blur = new cv.Mat();
+          cv.medianBlur(gray, blur, 5);
+
+          let circles = new cv.Mat();
+          cv.HoughCircles(
+            blur, circles, cv.HOUGH_GRADIENT,
+            1,
+            gray.rows/4,
+            120,
+            25,
+            Math.floor(Math.min(gray.cols, gray.rows)*0.30),
+            Math.floor(Math.min(gray.cols, gray.rows)*0.52)
+          );
+
+          if (circles.cols > 0) {
+            let best = 0;
+            for (let i=0; i<circles.cols; i++) {
+              const r = circles.data32F[i*3+2];
+              if (r > circles.data32F[best*3+2]) best = i;
+            }
+            cx = Math.round(circles.data32F[best*3]);
+            cy = Math.round(circles.data32F[best*3+1]);
+            radius = Math.round(circles.data32F[best*3+2] * 0.98);
+          }
+
+          blur.delete(); circles.delete();
+          cv.circle(fieldMask, new cv.Point(cx, cy), radius, new cv.Scalar(255), -1);
+        } else {
+          fieldMask = new cv.Mat(gray.rows, gray.cols, cv.CV_8U, new cv.Scalar(255));
+        }
+
+        setProgress(45); await nextFrame();
+
+        let cellMask = new cv.Mat.zeros(gray.rows, gray.cols, cv.CV_8U);
+
+        if (whichMode === 'edges') {
+          let blur2 = new cv.Mat();
+          cv.GaussianBlur(gray, blur2, new cv.Size(5,5), 0, 0, cv.BORDER_DEFAULT);
+
+          let edges = new cv.Mat();
+          const t1 = clamp(20 + (1 - sens01) * 60, 10, 90);
+          const t2 = clamp(t1 * 2.5, 40, 220);
+          cv.Canny(blur2, edges, t1, t2);
+
+          edges.copyTo(cellMask);
+          blur2.delete(); edges.delete();
+        } else {
+          let blur2 = new cv.Mat();
+          cv.GaussianBlur(gray, blur2, new cv.Size(5,5), 0, 0, cv.BORDER_DEFAULT);
+
+          let lap16 = new cv.Mat();
+          cv.Laplacian(blur2, lap16, cv.CV_16S, 3, 1, 0, cv.BORDER_DEFAULT);
+
+          let abs8 = new cv.Mat();
+          cv.convertScaleAbs(lap16, abs8);
+
+          const thr = clamp(10 + (1 - sens01) * 40, 5, 60);
+          cv.threshold(abs8, cellMask, thr, 255, cv.THRESH_BINARY);
+
+          blur2.delete(); lap16.delete(); abs8.delete();
+        }
+
+        setProgress(70); await nextFrame();
+
+        if (fillPx > 0) {
+          const k = cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(fillPx*2+1, fillPx*2+1));
+          cv.morphologyEx(cellMask, cellMask, cv.MORPH_CLOSE, k);
+          cv.dilate(cellMask, cellMask, k);
+          k.delete();
+        }
+
+        setProgress(82); await nextFrame();
+
+        let cellInField = new cv.Mat();
+        cv.bitwise_and(cellMask, fieldMask, cellInField);
+
+        const fieldCount = cv.countNonZero(fieldMask);
+        const cellCount  = cv.countNonZero(cellInField);
+        const confluence = (fieldCount > 0) ? (100.0 * cellCount / fieldCount) : 0;
+        pctEl.textContent = confluence.toFixed(1) + '%';
+
+        setProgress(90); await nextFrame();
+
+        let overlay = src.clone();
+        let red = new cv.Mat(src.rows, src.cols, src.type(), new cv.Scalar(255, 0, 0, 90));
+        let redMasked = new cv.Mat.zeros(src.rows, src.cols, src.type());
+        red.copyTo(redMasked, cellInField);
+        cv.addWeighted(overlay, 1.0, redMasked, 1.0, 0.0, overlay);
+
+        if (useAutoCircle) {
+          let outside = new cv.Mat();
+          cv.bitwise_not(fieldMask, outside);
+          let dim = new cv.Mat(src.rows, src.cols, src.type(), new cv.Scalar(0,0,0,140));
+          let dimMasked = new cv.Mat.zeros(src.rows, src.cols, src.type());
+          dim.copyTo(dimMasked, outside);
+          cv.addWeighted(overlay, 1.0, dimMasked, 1.0, 0.0, overlay);
+          outside.delete(); dim.delete(); dimMasked.delete();
+        }
+
+        cv.imshow(canvas, overlay);
+
+        setProgress(100); await nextFrame();
+
+        src.delete(); gray.delete(); fieldMask.delete();
+        cellMask.delete(); cellInField.delete();
+        overlay.delete(); red.delete(); redMasked.delete();
+
+        setStatus('Listo ✅ (si la máscara no encaja, ajusta parámetros y vuelve a analizar)');
+        setTimeout(() => { showProgress(false); }, 700);
+
+      } catch (e) {
+        console.error(e);
+        setStatus('Error analizando (mira consola / prueba otra foto).');
+        showProgress(false);
+      } finally {
+        isAnalyzing = false;
+        analyzeBtn.textContent = oldBtn || '🔬 Analizar confluencia';
+        updateAnalyzeButton();
       }
-
-      cv.circle(fieldMask, new cv.Point(cx, cy), radius, new cv.Scalar(255), -1);
-
-      // --- 2) Segmentación célula vs fondo ---
-      let cellMask = new cv.Mat.zeros(gray.rows, gray.cols, cv.CV_8U);
-
-      if (whichMode === 'edges') {
-        // Canny + dilatación/close
-        let blur2 = new cv.Mat();
-        cv.GaussianBlur(gray, blur2, new cv.Size(5,5), 0, 0, cv.BORDER_DEFAULT);
-
-        let edges = new cv.Mat();
-        // umbrales dependientes de sensibilidad
-        const t1 = clamp(20 + (1 - sens01) * 60, 10, 90);
-        const t2 = clamp(t1 * 2.5, 40, 220);
-        cv.Canny(blur2, edges, t1, t2);
-
-        edges.copyTo(cellMask);
-        blur2.delete(); edges.delete();
-      } else {
-        // “Texture”: Laplacian abs + threshold
-        let blur2 = new cv.Mat();
-        cv.GaussianBlur(gray, blur2, new cv.Size(5,5), 0, 0, cv.BORDER_DEFAULT);
-
-        let lap16 = new cv.Mat();
-        cv.Laplacian(blur2, lap16, cv.CV_16S, 3, 1, 0, cv.BORDER_DEFAULT);
-
-        let abs8 = new cv.Mat();
-        cv.convertScaleAbs(lap16, abs8);
-
-        // threshold depende sensibilidad
-        const thr = clamp(10 + (1 - sens01) * 40, 5, 60);
-        cv.threshold(abs8, cellMask, thr, 255, cv.THRESH_BINARY);
-
-        blur2.delete(); lap16.delete(); abs8.delete();
-      }
-
-      // Morphology para “rellenar monocapa”
-      if (fillPx > 0) {
-        const k = cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(fillPx*2+1, fillPx*2+1));
-        cv.morphologyEx(cellMask, cellMask, cv.MORPH_CLOSE, k);
-        cv.dilate(cellMask, cellMask, k);
-        k.delete();
-      }
-
-      // Restringe a campo válido
-      let cellInField = new cv.Mat();
-      cv.bitwise_and(cellMask, fieldMask, cellInField);
-
-      // --- 3) Confluencia (% área) ---
-      const fieldCount = cv.countNonZero(fieldMask);
-      const cellCount  = cv.countNonZero(cellInField);
-      const confluence = (fieldCount > 0) ? (100.0 * cellCount / fieldCount) : 0;
-
-      pctEl.textContent = confluence.toFixed(1) + '%';
-
-      // --- 4) Overlay rojo ---
-      let overlay = src.clone(); // RGBA
-      // crea una capa roja con alpha
-      let red = new cv.Mat(src.rows, src.cols, src.type(), new cv.Scalar(255, 0, 0, 90));
-      // aplica máscara: copia red solo donde hay célula
-      let redMasked = new cv.Mat.zeros(src.rows, src.cols, src.type());
-      red.copyTo(redMasked, cellInField);
-
-      // mezcla overlay = overlay + redMasked (alpha ya en canal A)
-      cv.addWeighted(overlay, 1.0, redMasked, 1.0, 0.0, overlay);
-
-      // pinta fuera del campo con un velo para que se vea el ROI
-      let outside = new cv.Mat();
-      cv.bitwise_not(fieldMask, outside);
-      let dim = new cv.Mat(src.rows, src.cols, src.type(), new cv.Scalar(0,0,0,140));
-      let dimMasked = new cv.Mat.zeros(src.rows, src.cols, src.type());
-      dim.copyTo(dimMasked, outside);
-      cv.addWeighted(overlay, 1.0, dimMasked, 1.0, 0.0, overlay);
-
-      // Render a canvas
-      cv.imshow(canvas, overlay);
-
-      // Limpieza
-      src.delete(); gray.delete(); fieldMask.delete();
-      cellMask.delete(); cellInField.delete();
-      overlay.delete(); red.delete(); redMasked.delete();
-      outside.delete(); dim.delete(); dimMasked.delete();
-
-      setStatus('Listo ✅ (ajusta sliders si la máscara no encaja)');
     }
 
-    // Eventos
+    // Eventos (NUNCA análisis automático)
     startCamBtn.addEventListener('click', startCamera);
     stopCamBtn.addEventListener('click', stopCamera);
+
     snapBtn.addEventListener('click', () => {
       drawToCanvasFromVideo();
-      analyze();
+      setStatus('Captura hecha ✅ Ajusta parámetros y pulsa "Analizar confluencia".');
+      showProgress(false);
+      setProgress(0);
+      updateAnalyzeButton();
     });
+
+    analyzeBtn.addEventListener('click', () => analyze());
 
     function handleFile(file) {
       if (!file) return;
       const img = new Image();
-      img.onload = () => { drawToCanvasFromImage(img); analyze(); };
+      img.onload = () => {
+        drawToCanvasFromImage(img);
+        setStatus('Imagen cargada ✅ Ajusta parámetros y pulsa "Analizar confluencia".');
+        showProgress(false);
+        setProgress(0);
+        updateAnalyzeButton();
+      };
       img.src = URL.createObjectURL(file);
     }
 
@@ -375,9 +640,11 @@ setTimeout(() => {
     fileCam.addEventListener('change',  (e) => handleFile(e.target.files[0]));
 
     ;[sens, fill, mode, autoCircle].forEach(el => {
-      el.addEventListener('input', () => { updateUI(); analyze(); });
-      el.addEventListener('change', () => { updateUI(); analyze(); });
+      el.addEventListener('input', () => { updateUI(); });
+      el.addEventListener('change', () => { updateUI(); });
     });
+
+    updateUI();
   </script>
 </body>
 </html>
