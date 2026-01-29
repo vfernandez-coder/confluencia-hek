@@ -125,16 +125,35 @@
     }
     updateUI();
 
-    // Espera a que OpenCV esté listo
-    const cvWait = setInterval(() => {
-      if (typeof cv !== 'undefined' && cv.Mat) {
-        clearInterval(cvWait);
-        cv['onRuntimeInitialized'] = () => {
-          cvReady = true;
-          setStatus('OpenCV listo ✅');
-        };
-      }
-    }, 50);
+   // Espera a que OpenCV esté listo (FIX iOS)
+let hooked = false;
+const cvWait = setInterval(() => {
+  if (typeof cv !== 'undefined') {
+
+    // Si aún no hemos enganchado el callback, lo enganchamos ya
+    if (!hooked) {
+      hooked = true;
+      cv['onRuntimeInitialized'] = () => {
+        cvReady = true;
+        setStatus('OpenCV listo ✅');
+        // si ya había imagen cargada, intenta analizar
+        try { analyze(); } catch (e) {}
+      };
+    }
+
+    // Si por lo que sea ya estaba inicializado cuando llegamos aquí
+    if (cv.Mat) {
+      cvReady = true;
+      setStatus('OpenCV listo ✅');
+      clearInterval(cvWait);
+    }
+  }
+}, 50);
+
+// Fallback por si OpenCV no carga nunca (red, cache, etc.)
+setTimeout(() => {
+  if (!cvReady) setStatus('OpenCV no ha cargado (prueba recargar / otra red).');
+}, 12000);
 
     async function startCamera() {
       try {
